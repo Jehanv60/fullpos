@@ -22,11 +22,11 @@ func main() {
 	barangRepository := repository.NewRepositoryBarang()
 	barangService := service.NewBarangService(barangRepository, DB, validate)
 	penggunaRepository := repository.NewRepositoryPengguna()
-	penggunaService := service.NewPenggunaService(penggunaRepository, DB, validate)
+	penggunaService := service.NewUserService(penggunaRepository, DB, validate)
 	transaksiRepository := repository.NewRepositoryTransaksi()
 	transaksiService := service.NewTransaksiService(transaksiRepository, barangRepository, DB, validate)
 	barangController := controller.NewBarangController(barangService, penggunaService)
-	penggunaController := controller.NewPenggunaController(penggunaService)
+	penggunaController := controller.NewPenggunaController(penggunaService, validate)
 	transaksiController := controller.NewTransaksiController(transaksiService, penggunaService, barangService)
 	router := app.NewRouter(barangController, penggunaController, transaksiController)
 	Handler := cors.New(cors.Options{

@@ -24,6 +24,7 @@ type PenggunaRepository interface {
 	FindById(ctx context.Context, tx *sql.Tx, penggunaId int) domain.Pengguna
 	FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna, Email string) domain.Pengguna
 	FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) domain.Pengguna
+	LoginAuth(ctx context.Context, tx *sql.Tx, userOrEmail string) domain.Login
 	FindAll(ctx context.Context, tx *sql.Tx) []domain.Pengguna
 }
 

@@ -4,8 +4,8 @@
   import { goto } from "$app/navigation";
   let statusMenu = false;
   let personLogin = {
-    pengguna: "",
-    sandi: "",
+    useroremail: "",
+    password: "",
   };
   let person = {
     pengguna: "",
@@ -96,13 +96,13 @@
       <h1 class="text-2xl font-bold text-center">Login</h1>
       <form class="py-5 max-w-md" onsubmit={submitLogin}>
         <input
-          bind:value={personLogin.pengguna}
+          bind:value={personLogin.useroremail}
           type="text"
           placeholder="Username/Email"
           class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white mb-4 focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
         <input
-          bind:value={personLogin.sandi}
+          bind:value={personLogin.password}
           type="password"
           placeholder="Password"
           class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white mb-4 focus:outline-none focus:ring-2 focus:ring-amber-500"

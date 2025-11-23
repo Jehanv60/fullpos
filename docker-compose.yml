@@ -34,7 +34,7 @@ services:
       DATABASE_PORT: ${DB_PORT}
     ports:
       - "8080:8080"
-    restart: on-failure
+    # restart: on-failure
     volumes:
       - ./beinventory/:/app
     depends_on:

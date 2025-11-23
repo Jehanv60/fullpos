@@ -13,19 +13,19 @@ import (
 )
 
 type BarangControllerImpl struct {
-	BarangService   service.BarangService
-	PenggunaService service.PenggunaService
+	BarangService service.BarangService
+	UserService   service.UserService
 }
 
-func NewBarangController(barangService service.BarangService, penggunaService service.PenggunaService) BarangController {
+func NewBarangController(barangService service.BarangService, UserService service.UserService) BarangController {
 	return &BarangControllerImpl{
-		BarangService:   barangService,
-		PenggunaService: penggunaService,
+		BarangService: barangService,
+		UserService:   UserService,
 	}
 }
 
 func (controller *BarangControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	barangCreateRequest := web.BarangCreateRequest{}
 	helper.ReadFromBody(r, &barangCreateRequest)
 	barangResponse := controller.BarangService.Create(r.Context(), barangCreateRequest, idUser.Id)
@@ -38,7 +38,7 @@ func (controller *BarangControllerImpl) Create(w http.ResponseWriter, r *http.Re
 }
 
 func (controller *BarangControllerImpl) Update(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	barangUpdate := web.BarangUpdate{}
 	helper.ReadFromBody(r, &barangUpdate)
 	id, err := strconv.Atoi(params.ByName("barangId"))
@@ -55,7 +55,7 @@ func (controller *BarangControllerImpl) Update(w http.ResponseWriter, r *http.Re
 }
 
 func (controller *BarangControllerImpl) Delete(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	id, err := strconv.Atoi(params.ByName("barangId"))
 	helper.PanicError(err)
 	controller.BarangService.Delete(r.Context(), id, idUser.Id)
@@ -70,7 +70,7 @@ func (controller *BarangControllerImpl) Delete(w http.ResponseWriter, r *http.Re
 }
 
 func (controller *BarangControllerImpl) FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	id, err := strconv.Atoi(params.ByName("barangId"))
 	helper.PanicError(err)
 	barangResponse := controller.BarangService.FindById(r.Context(), id, idUser.Id)
@@ -83,7 +83,7 @@ func (controller *BarangControllerImpl) FindById(w http.ResponseWriter, r *http.
 }
 
 func (controller *BarangControllerImpl) FindAll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	barangResponses := controller.BarangService.FindAll(r.Context(), idUser.Id)
 	webResponse := web.WebResponse{
 		Code:   200,

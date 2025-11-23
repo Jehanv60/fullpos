@@ -1,6 +1,8 @@
 package web
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type BarangResponse struct {
 	Id         int    `json:"id"`
@@ -14,11 +16,11 @@ type BarangResponse struct {
 	Stok       int    `json:"stok"`
 }
 
-type PenggunaResponse struct {
+type UserResponse struct {
 	Id       int    `json:"id"`
-	Pengguna string `json:"pengguna"`
+	User     string `json:"pengguna"`
 	Email    string `json:"email"`
-	Sandi    string `json:"sandi"`
+	Password string `json:"sandi"`
 }
 
 type TransaksiResponse struct {
@@ -31,4 +33,8 @@ type TransaksiResponse struct {
 	Total         int             `json:"total"`
 	Tanggal       string          `json:"tanggal"`
 	ItemDetailed  json.RawMessage `json:"itemdetailed"`
+}
+
+type LoginResponse struct {
+	Token string
 }

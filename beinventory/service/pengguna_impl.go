@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/Jehanv60/exception"
 	"github.com/Jehanv60/helper"
@@ -12,24 +13,25 @@ import (
 	"github.com/Jehanv60/repository"
 	"github.com/Jehanv60/util"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-type PenggunaServiceImpl struct {
+type UserServiceImpl struct {
 	PenggunaRepository repository.PenggunaRepository
 	DB                 *sql.DB
 	Validate           *validator.Validate
 }
 
-func NewPenggunaService(penggunaRepository repository.PenggunaRepository, DB *sql.DB, validate *validator.Validate) PenggunaService {
-	return &PenggunaServiceImpl{
+func NewUserService(penggunaRepository repository.PenggunaRepository, DB *sql.DB, validate *validator.Validate) UserService {
+	return &UserServiceImpl{
 		PenggunaRepository: penggunaRepository,
 		DB:                 DB,
 		Validate:           validate,
 	}
 }
 
-// Create implements PenggunaService.
-func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.PenggunaCreateRequest) web.PenggunaResponse {
+// Create implements UserService.
+func (service *UserServiceImpl) Create(ctx context.Context, request web.PenggunaCreateRequest) web.UserResponse {
 	err := service.Validate.Struct(request)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
@@ -54,8 +56,8 @@ func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.Peng
 	return helper.ToPenggunaResponse(penggunas)
 }
 
-// FindAll implements PenggunaService.
-func (service *PenggunaServiceImpl) FindAll(ctx context.Context) []web.PenggunaResponse {
+// FindAll implements UserService.
+func (service *UserServiceImpl) FindAll(ctx context.Context) []web.UserResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
@@ -63,8 +65,8 @@ func (service *PenggunaServiceImpl) FindAll(ctx context.Context) []web.PenggunaR
 	return helper.ToPenggunaResponses(penggunas)
 }
 
-// FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int) web.PenggunaResponse {
+// FindById implements UserService.
+func (service *UserServiceImpl) FindById(ctx context.Context, penggunaId int) web.UserResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
@@ -75,8 +77,8 @@ func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int
 	return helper.ToPenggunaResponse(penggunas)
 }
 
-// FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, namaPengguna string) web.PenggunaResponse {
+// FindByUserLogin implements UserService.
+func (service *UserServiceImpl) FindByUserLogin(ctx context.Context, namaPengguna string) web.UserResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
@@ -84,8 +86,8 @@ func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, nam
 	return helper.ToPenggunaResponse(penggunas)
 }
 
-// Update implements PenggunaService.
-func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.PenggunaUpdate) web.PenggunaResponse {
+// Update implements UserService.
+func (service *UserServiceImpl) Update(ctx context.Context, update web.PenggunaUpdate) web.UserResponse {
 	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(update)
 	util.ErrValidateSelf(err)
@@ -117,4 +119,25 @@ func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.Pengg
 	}
 	penggunas = service.PenggunaRepository.Update(ctx, tx, penggunas)
 	return helper.ToPenggunaResponse(penggunas)
+}
+
+func (service *UserServiceImpl) LoginAuth(ctx context.Context, request web.LoginRequest) web.LoginResponse {
+	// service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
+	err := service.Validate.Struct(request)
+	util.ErrValidateSelf(err)
+	tx, err := service.DB.Begin()
+	helper.PanicError(err)
+	defer helper.CommitOrRollback(tx)
+	userData := service.PenggunaRepository.LoginAuth(ctx, tx, request.UserOrEmail)
+	isvalid := util.Unhashpassword(request.Password, userData.Password)
+	if !isvalid {
+		panic(exception.NewNotFound("username Atau Email Dan Password Tidak Sesuai"))
+	}
+	claims := jwt.MapClaims{}
+	claims["Username"] = userData.Username
+	claims["id"] = userData.Id
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	token, err := util.GenerateToken(&claims)
+	helper.PanicError(err)
+	return helper.ToLoginResponse(token)
 }

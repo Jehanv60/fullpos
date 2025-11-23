@@ -7,70 +7,38 @@ import (
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
-	"github.com/Jehanv60/util"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
 )
 
-func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	penggunaCreateRequest := web.LoginRequest{}
-	helper.ReadFromBody(r, &penggunaCreateRequest)
-	webResponse := web.LoginRequest{
-		Pengguna: penggunaCreateRequest.Pengguna,
-		Sandi:    penggunaCreateRequest.Sandi,
-	}
-	if webResponse.Pengguna == "" || webResponse.Sandi == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    400,
-			"Status":  "Bad Request",
-			"Message": "Inputan Masih Kosong Mohon Dilengkapi",
-		})
-		return
-	}
-	penggunaId := controller.PenggunaService.FindByPenggunaLogin(r.Context(), penggunaCreateRequest.Pengguna)
-	isvalid := util.Unhashpassword(webResponse.Sandi, penggunaId.Sandi)
-	if webResponse.Pengguna != penggunaId.Email && !isvalid || webResponse.Pengguna != penggunaId.Pengguna && !isvalid {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    401,
-			"Status":  "Unauthorized",
-			"Message": "Username Atau Email Dan Password Tidak Sesuai",
-		})
-		return
-	}
-	claims := jwt.MapClaims{}
-	claims["pengguna"] = penggunaCreateRequest.Pengguna
-	claims["id"] = penggunaId.Id
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
-	Token, err := util.GenerateToken(&claims)
-	helper.PanicError(err)
+// function untuk login
+func (controller *UserControllerImpl) LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	userCreateRequest := web.LoginRequest{}
+	helper.ReadFromBody(r, &userCreateRequest)
+	userData := controller.UserService.LoginAuth(r.Context(), userCreateRequest)
 	helper.GoDoEnv()
-	hehe := &http.Cookie{
+	writeToken := &http.Cookie{
 		Name:     os.Getenv("Token"),
-		Value:    Token,
+		Value:    userData.Token,
 		Path:     "/",
-		Expires:  time.Now().Add(time.Minute * 15),
+		Expires:  time.Now().Add(time.Hour * 1),
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
 	}
-	http.SetCookie(w, hehe)
+	http.SetCookie(w, writeToken)
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	w.WriteHeader(http.StatusOK)
-	helper.WriteToResponse(w, map[string]interface{}{
-		"Token":    Token,
-		"Validasi": "Username Atau Email Dan Password Sesuai",
-	})
+	// w.Header().Set("Access-Control-Allow-Credentials", "true")
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   "Username Atau Email Dan Password Sesuai",
+	}
+	helper.WriteToResponse(w, webResponse)
 }
 
 /*
-contoh penggunan tanpa interface
+contoh UserOrEmailn tanpa interface
 var DB = NewDb1()
 
 	func NewDb1() *sql.DB {
@@ -87,24 +55,24 @@ var DB = NewDb1()
 		return db
 	}
 
-penggunaId, err := PenggunaSelect(penggunaCreateRequest.Pengguna)
+UserOrEmailId, err := UserOrEmailSelect(userCreateRequest.UserOrEmail)
 helper.PanicError(err)
 
-	func PenggunaSelect(NamaPengguna string) (domain.Pengguna, error) {
+	func UserOrEmailSelect(NamaUserOrEmail string) (domain.UserOrEmail, error) {
 		var err error
 		tx, err := DB.Begin()
 		helper.PanicError(err)
-		SQL := "select id, pengguna, email, password from pengguna where pengguna = $1"
-		rows, err := tx.Query(SQL, NamaPengguna)
+		SQL := "select id, UserOrEmail, email, password from UserOrEmail where UserOrEmail = $1"
+		rows, err := tx.Query(SQL, NamaUserOrEmail)
 		helper.PanicError(err)
-		pengguna := domain.Pengguna{}
-		fmt.Println(pengguna)
+		UserOrEmail := domain.UserOrEmail{}
+		fmt.Println(UserOrEmail)
 		defer rows.Close()
 		if rows.Next() {
-			rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
-			return pengguna, nil
+			rows.Scan(&UserOrEmail.Id, &UserOrEmail.UserOrEmail, &UserOrEmail.Email, &UserOrEmail.Sandi)
+			return UserOrEmail, nil
 		} else {
-			return pengguna, nil
+			return UserOrEmail, nil
 		}
 
 }

@@ -7,6 +7,22 @@ import (
 	"github.com/Jehanv60/model/web"
 )
 
+func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
+	if notFoundError(w, err) {
+		return
+	}
+	if sameNotEqual(w, err) {
+		return
+	}
+	if sameFoundError(w, err) {
+		return
+	}
+	if validationError(w, err) {
+		return
+	}
+	internalServerError(w, err)
+}
+
 func NotFoundRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -28,21 +44,6 @@ func MethodNotAllowed() http.HandlerFunc {
 		}
 		helper.WriteToResponse(w, webResponse)
 	}
-}
-func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
-	if notFoundError(w, err) {
-		return
-	}
-	if sameNotEqual(w, err) {
-		return
-	}
-	if sameFoundError(w, err) {
-		return
-	}
-	if validationError(w, err) {
-		return
-	}
-	internalServerError(w, err)
 }
 
 func validationError(w http.ResponseWriter, err interface{}) bool {

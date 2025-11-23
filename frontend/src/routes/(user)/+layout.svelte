@@ -1,11 +1,3 @@
-<!-- <script>
-  let { children } = $props();
-</script> -->
-
-<!-- <div class="bg-gray-500 min-h-screen flex justify-center items-center">
-  {@render children()}
-</div> -->
-
 <script>
   import { page } from "$app/stores";
   import { postLogout } from "../../lib/apiUser";
@@ -24,10 +16,10 @@
 
   let menus = [
     { name: "Dashboard", href: "/dashboard", icon: "📊" },
-    { name: "Produk", href: "/dashboard/produk", icon: "📦" },
-    { name: "Transaksi", href: "/dashboard/transaksi", icon: "🛒" },
-    { name: "Laporan", href: "/dashboard/laporan", icon: "📑" },
-    { name: "Pengaturan", href: "/dashboard/setting", icon: "⚙️" },
+    { name: "Produk", href: "/product", icon: "📦" },
+    { name: "Transaksi", href: "/transaksi", icon: "🛒" },
+    { name: "Laporan", href: "/laporan", icon: "📑" },
+    { name: "Pengaturan", href: "/setting", icon: "⚙️" },
   ];
 
   function toggleSidebar() {
@@ -39,12 +31,11 @@
     const responseBody = await response.json();
     console.log(responseBody);
     if (response.status === 202 || response.status === 200) {
-      // alert("Logout berhasil");
+      console.log(responseBody);
       goto("/");
     } else {
-      //   console.log(responseBody.data.join("\n"));
-      failed(responseBody.data);
-      console.error("gagal datanya", responseBody.data);
+      failed(responseBody);
+      console.log("gagal datanya", responseBody);
     }
   }
 </script>

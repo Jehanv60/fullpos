@@ -12,20 +12,20 @@ import (
 
 type TransaksiControllerImpl struct {
 	TransactionService service.TransaksiService
-	PenggunaService    service.PenggunaService
+	UserService        service.UserService
 	BarangService      service.BarangService
 }
 
-func NewTransaksiController(transaksiService service.TransaksiService, penggunaService service.PenggunaService, barangService service.BarangService) TransaksiController {
+func NewTransaksiController(transaksiService service.TransaksiService, UserService service.UserService, barangService service.BarangService) TransaksiController {
 	return &TransaksiControllerImpl{
 		TransactionService: transaksiService,
-		PenggunaService:    penggunaService,
+		UserService:        UserService,
 		BarangService:      barangService,
 	}
 }
 
 func (controller *TransaksiControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	transaksiCreateRequest := web.TransactionCreateRequest{}
 	helper.ReadFromBody(r, &transaksiCreateRequest)
 	transaksiResponse := controller.TransactionService.Create(r.Context(), transaksiCreateRequest, idUser.Id)
@@ -38,7 +38,7 @@ func (controller *TransaksiControllerImpl) Create(w http.ResponseWriter, r *http
 }
 
 func (controller *TransaksiControllerImpl) ReportAll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	idUser := controller.UserService.FindByUserLogin(r.Context(), util.TokenEnv(r))
 	transaksiResponse := controller.TransactionService.ReportAll(r.Context(), idUser.Id)
 	webResponse := web.WebResponse{
 		Code:   200,

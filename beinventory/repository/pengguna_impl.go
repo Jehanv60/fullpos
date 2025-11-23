@@ -68,6 +68,18 @@ func (repository *PenggunaRepoImpl) FindByPenggunaLogin(ctx context.Context, tx 
 	return pengguna
 }
 
+func (repository *PenggunaRepoImpl) LoginAuth(ctx context.Context, tx *sql.Tx, userOrEmail string) domain.Login {
+	SQL := "select id, pengguna, password from pengguna where email = $1 or pengguna = $1"
+	rows, err := tx.QueryContext(ctx, SQL, userOrEmail)
+	helper.PanicError(err)
+	userLogin := domain.Login{}
+	defer rows.Close()
+	if rows.Next() {
+		rows.Scan(&userLogin.Id, &userLogin.Username, &userLogin.Password)
+	}
+	return userLogin
+}
+
 func (repository *PenggunaRepoImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Pengguna {
 	SQL := "select id, pengguna, email, password from pengguna"
 	rows, err := tx.QueryContext(ctx, SQL)

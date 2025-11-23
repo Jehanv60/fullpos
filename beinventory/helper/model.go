@@ -19,12 +19,18 @@ func ToBarangResponse(barang domain.Barang) web.BarangResponse {
 	}
 }
 
-func ToPenggunaResponse(pengguna domain.Pengguna) web.PenggunaResponse {
-	return web.PenggunaResponse{
+func ToPenggunaResponse(pengguna domain.Pengguna) web.UserResponse {
+	return web.UserResponse{
 		Id:       pengguna.Id,
-		Pengguna: pengguna.Pengguna,
+		User:     pengguna.Pengguna,
 		Email:    pengguna.Email,
-		Sandi:    pengguna.Sandi,
+		Password: pengguna.Sandi,
+	}
+}
+
+func ToLoginResponse(token string) web.LoginResponse {
+	return web.LoginResponse{
+		Token: token,
 	}
 }
 
@@ -36,8 +42,8 @@ func ToBarangResponses(barangs []domain.Barang) []web.BarangResponse {
 	return barangResponses
 }
 
-func ToPenggunaResponses(penggunas []domain.Pengguna) []web.PenggunaResponse {
-	var penggunaResponses []web.PenggunaResponse
+func ToPenggunaResponses(penggunas []domain.Pengguna) []web.UserResponse {
+	var penggunaResponses []web.UserResponse
 	for _, penggunass := range penggunas {
 		penggunaResponses = append(penggunaResponses, ToPenggunaResponse(penggunass))
 	}

@@ -12,14 +12,14 @@ export const postRegister = async ({ pengguna, sandi, email }) => {
     body: JSON.stringify({ pengguna, sandi, email }),
   });
 };
-export const postLogin = async ({ pengguna, sandi }) => {
+export const postLogin = async ({ useroremail, password }) => {
   return await fetch(`${urlapi}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify({ pengguna, sandi }),
+    body: JSON.stringify({ useroremail, password }),
     credentials: "include",
   });
 };

@@ -14,12 +14,13 @@ type BarangService interface {
 	FindAll(ctx context.Context, idUser int) []web.BarangResponse
 }
 
-type PenggunaService interface {
-	Create(ctx context.Context, request web.PenggunaCreateRequest) web.PenggunaResponse
-	Update(ctx context.Context, update web.PenggunaUpdate) web.PenggunaResponse
-	FindById(ctx context.Context, penggunaId int) web.PenggunaResponse
-	FindByPenggunaLogin(ctx context.Context, NamaPengguna string) web.PenggunaResponse
-	FindAll(ctx context.Context) []web.PenggunaResponse
+type UserService interface {
+	Create(ctx context.Context, request web.PenggunaCreateRequest) web.UserResponse
+	Update(ctx context.Context, update web.PenggunaUpdate) web.UserResponse
+	FindById(ctx context.Context, penggunaId int) web.UserResponse
+	FindByUserLogin(ctx context.Context, NamaPengguna string) web.UserResponse
+	LoginAuth(ctx context.Context, request web.LoginRequest) web.LoginResponse
+	FindAll(ctx context.Context) []web.UserResponse
 }
 
 type TransaksiService interface {
